@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 
 import socket
-import SocketUtil
+import time
+import Util
 
 class Master:
 
@@ -38,10 +39,36 @@ class Master:
       for i, bot in enumerate(self.bots):
          print "Connecting to %s:%d" % (bot[0], bot[1])
          botSocket = socket.socket()
-         # botSocket.connect((bot[0], bot0[1]))
-         botSocket.connect((socket.gethostname(), 21800))
-         SocketUtil.send(botSocket, self.MASTER_PASSPHRASE)
-         SocketUtil.recieve(botSocket, len(self.BOT_PASSPHRASE))
+         botSocket.connect((bot[0], bot[1]))
+         # botSocket.connect((socket.gethostname(), 21800))
+
+         # second master passphrase
+         Util.send(botSocket, self.MASTER_PASSPHRASE)
+
+         # receive client's passphrase
+         recvdPassphrase = Util.recieve(botSocket)
+
+         if recvdPassphrase != self.BOT_PASSPHRASE:
+            print 'Bot @ ' + '%s:%d' % (bot[0], bot[1]) + ' compromised!'
+            botSocket.close()
+            continue
+
+         Util.send(botSocket, 'send me time')
+
+         # receive bot time
+         botTime = Util.recieve(botSocket)
+         print 'Received botTime'
+
+
+         print 'my current time: ' + str(int(time.time() * 1000))
+         print 'botTime: ' + botTime.strip()
+         print long(botTime.strip())
+
+         self.bots[i][2] = int(time.time() * 1000) - int(botTime)
+
+         atkTime = int(time.time() * 1000) + 86400000
+         Util.send(botSocket, str(int(self.bots[i][2] + atkTime)))
+
          botSocket.close()
 
 if __name__ == '__main__':

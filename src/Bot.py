@@ -2,10 +2,9 @@
 
 import socket
 import time
-import SocketUtil
+import Util
 
 class Bot:
-   EOF = '\n'
    MASTER_PASSPHRASE = 'gits#9sac'
    BOT_PASSPHRASE    = 'standalone'
 
@@ -17,7 +16,7 @@ class Bot:
       # would be visible to the outside world
       self.serverSocket = socket.socket()
       self.serverSocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-      self.serverSocket.bind((socket.gethostname(), 21800))
+      self.serverSocket.bind((socket.gethostname(), 21801))
       self.serverSocket.listen(1)
       print 'Socket created'
 
@@ -31,7 +30,20 @@ class Bot:
          (self.notAuthenticated, self.master) = self.listenForMaster()
 
       # send bot passphrase
-      SocketUtil.send(self.master, self.BOT_PASSPHRASE)
+      Util.send(self.master, self.BOT_PASSPHRASE)
+
+      cmd = Util.recieve(self.master)
+      
+
+      # send curr time
+      currTimeStr = str(self.getCurrTime())
+      print 'Sending current time: ' + str(int(time.time() * 1000))
+      Util.send(self.master, currTimeStr)
+      print 'Current time sent'
+
+      atkTime = Util.recieve(self.master)
+
+      print 'Going to attack at ' + atkTime
 
       self.master.close()
       self.serverSocket.close()
@@ -47,19 +59,21 @@ class Bot:
          
          print 'Connected to Master: ' + str(address)
 
-         print 'Receiving from Master...'
+         print 'Authenticating Master...'
 
-         recvdStr = SocketUtil.recieve(connection)
+         recvdStr = Util.recieve(connection)
 
          # authenticate connection
          if recvdStr != self.MASTER_PASSPHRASE:
             # not master
             connection.close()
             print 'Stranger tried to connect!'
-            return (False, None)
+            return (True, None)
 
          # was master
-         return (True, connection)
+         print 'Master Authenticated'
+
+         return (False, connection)
 
    def getCurrTime(self):
       return int(time.time() * 1000) # time in milliseconds
