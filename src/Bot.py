@@ -8,6 +8,7 @@ import thread
 import threading
 import signal
 import sys
+import argparse
 
 class Bot:
    MASTER_PASSPHRASE = 'gits#9sac'
@@ -26,7 +27,9 @@ class Bot:
       self.botServerSocket = socket.socket()
       self.botServerSocket.setsockopt(\
          socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-      self.botServerSocket.bind((socket.gethostname(), 21801))
+
+      global port
+      self.botServerSocket.bind((socket.gethostname(), int(port)))
       self.botServerSocket.listen(1)
       print 'Bot socket created'
 
@@ -143,4 +146,16 @@ class Bot:
       sys.exit(0)
 
 if __name__ == '__main__':
+   parser = argparse.ArgumentParser(description='Start Bot.')
+   parser.add_argument('-p', '--port', dest='port', action='store', \
+      type=int, required=True)
+   parser.add_argument('-v', dest='verbose', action='store_true')
+   args = parser.parse_args()
+
+   port = args.port
+
+   if port <= 1024:
+      parser.print_help()
+      sys.exit(0)
+
    bot = Bot()
