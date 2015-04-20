@@ -26,7 +26,7 @@ class Bot:
       self.botServerSocket = socket.socket()
       self.botServerSocket.setsockopt(\
          socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-      self.botServerSocket.bind((socket.gethostname(), 21800))
+      self.botServerSocket.bind((socket.gethostname(), 21801))
       self.botServerSocket.listen(1)
       print 'Bot socket created'
 
@@ -114,13 +114,15 @@ class Bot:
       time.sleep(waitTimeSecs)
 
       print 'Connecting to Target @ %s:%d...' % (target[0], target[1])
-      targetSocket = socket.socket()
+      targetSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
       targetSocket.connect((target[0], target[1]))
       print 'Connected'
 
       startTime = time.time()
       timeout = 30
+      print 'Attacking for ', timeout, ' seconds...'
       while time.time() < startTime + timeout:
+         time.sleep(1)
          Util.send(targetSocket, 'You\'re being attacked!!!')
 
       targetSocket.close()

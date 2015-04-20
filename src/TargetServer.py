@@ -3,9 +3,11 @@
 import socket
 import signal
 import sys
-import thread
+import threading
 import time
 import datetime
+import SocketServer
+import Util
 
 filebusy = False;
 
@@ -21,42 +23,58 @@ def log(line):
 
    filebusy = False
 
-class Server:
-   def __init__(self):
-      print 'Initializing Server...'
+def shutdown(signum, frame):
+   server.shutdown()
+   print '\nServer shut down'
 
-      signal.signal(signal.SIGINT, self.shutdown)
+   sys.exit(0)
 
-      # set up a socket as a server
-      # used socket.gethostname() instead of localhost so that the socket
-      # would be visible to the outside world
-      self.serverSocket = socket.socket()
-      self.serverSocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-      self.serverSocket.bind((socket.gethostname(), 8080))
-      self.serverSocket.listen(1)
-      print 'Server Socket created'
+class ClientRequestHandler(SocketServer.BaseRequestHandler):
+   def handle(self):
 
-      while (True):
-         connection, address = self.serverSocket.accept()
-         logLine = 'Received connection request from ' + str(address) \
-            + " at " + str(datetime.datetime.now())
-         print logLine
-         thread.start_new_thread(log, (logLine,))
-         connection.close()
+      logLine = 'Received connection request from ' + \
+         str(self.client_address) + 'at ' + str(datetime.datetime.now())
+      print logLine
 
-      self.shutdown(None, None)
+      log(logLine)
 
-   def shutdown(self, signum, frame):
-      if hasattr(self, 'serverSocket') and self.serverSocket != None:
-         self.serverSocket.close()
+      while True:
+         try:
+            rcvdStr = Util.recieve(self.request)
 
-      print '\nServer socket shut down'
-      print 'Server shut down'
+            if len(rcvdStr) < 1:
+               break
 
-      sys.exit(0)
+            print rcvdStr
+
+            log(rcvdStr)
+         except socket.error as msg:
+            log(str(msg))
+            break
 
 
-
+class ThreadedTCPServer(SocketServer.ThreadingMixIn, SocketServer.TCPServer):
+   pass
 
 if __name__ == '__main__':
-   server = Server()
+   print 'Initializing Server...'
+
+   signal.signal(signal.SIGINT, shutdown)
+
+   HOST, PORT = socket.gethostname(), 8081
+
+   server = ThreadedTCPServer((HOST, PORT), ClientRequestHandler)
+   server.allow_reuse_address
+   ip, port = server.server_address
+
+   # Start a thread with the server -- that thread will then start one
+   # more thread for each request
+   serverThread = threading.Thread(target=server.serve_forever)
+   # Exit the server thread when the main thread terminates
+   serverThread.daemon = True
+   serverThread.start()
+   print 'Server is listening in thread:', serverThread.name
+   print 'Use Ctrl+C to stop server'
+
+   while True:
+      time.sleep(60)

@@ -14,7 +14,7 @@ class Master:
    def __init__(self):
       print 'Initializing Master...'
 
-      self.target = (str(socket.gethostname()), 8080)
+      self.target = (str(socket.gethostname()), 8081)
       self.targetStr = str(self.target[0]) + ':' + str(self.target[1]) 
 
       # list containing host names, ports and delta time for the bots
