@@ -22,7 +22,7 @@ def log(line):
    if logToFile:
       global filebusy
       while filebusy:
-         time.sleep(0.1) # wait 500 ms
+         time.sleep(0.5) # wait 500 ms
       filebusy = True
 
    logStr = Util.formatTimeMS(Util.getCurrTime()) + ': '+ line
