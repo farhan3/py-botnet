@@ -1,9 +1,12 @@
 #!/usr/bin/env python
 
-import socket
 import time
+import datetime
 
 EOF = '\n'
+MASTER_PASSPHRASE = 'gits#9sac'
+BOT_PASSPHRASE    = 'standalone'
+CODE_00 = '00' # send current time
 
 """
    Receive msg from the provided connection.
@@ -44,5 +47,15 @@ def send(connection, msg):
    sendStr = msg + EOF
    connection.send(msg + EOF)
 
+"""
+Get the current time in milliseconds.
+"""
 def getCurrTime():
    return int(time.time() * 1000) # time in milliseconds
+
+"""
+Format the provided time in milliseconds to a human readable String.
+"""
+def formatTimeMS(timeMS):
+   return str(datetime.datetime.fromtimestamp(float(timeMS)/1000)\
+         .strftime('%Y-%m-%d %H:%M:%S.%f')[:-3])
