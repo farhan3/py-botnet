@@ -18,4 +18,4 @@ Once the Master has connected and is authenticated, the necessary
 data is exchanged between the Bot and Master, i.e. target host, port number,
 when to attack and the difference between the Bot and Master (if any) 
 
-Note: This code is meant for educational purposes only. It was created for a class project.
+*Note: This code is meant for educational purposes only. It was created for a class project.*
