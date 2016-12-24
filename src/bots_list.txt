@@ -1,4 +1,4 @@
-Farhan-Arshads-MacBook-Pro.local:21801
-Farhan-Arshads-MacBook-Pro.local:21800
-Farhan-Arshads-MacBook-Pro.local:20001
-Farhan-Arshads-MacBook-Pro.local:64000
+localhost:21801
+localhost:21800
+localhost:20001
+localhost:64000
